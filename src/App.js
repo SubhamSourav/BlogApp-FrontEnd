@@ -1,24 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
-
+import React, { useEffect, useState } from "react";
+import { Header } from "./components/Header";
+import { Routes, Route } from "react-router-dom";
+import Auth from "./components/Auth";
+import Blogs from "./components/Blogs";
+import UserBlogs from "./components/UserBlogs";
+import BlogDetail from "./components/BlogDetail";
+import AddBlog from "./components/AddBlog";
+import { useDispatch, useSelector } from "react-redux";
+import { authActions } from "./store";
 function App() {
+  const [issignup, setIssignup] = useState(false);
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state) => state.isLoggedIn);
+  useEffect(() => {
+    if (localStorage.getItem("userId")) {
+      dispatch(authActions.login());
+    }
+  }, [dispatch]);
+  console.log(localStorage.getItem("userId"));
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <>
+      <header>
+        <Header issignup={issignup} setIssignup={setIssignup} />
       </header>
-    </div>
+      <main>
+        <Routes>
+          {!isLoggedIn ? (
+            <Route
+              path="/auth"
+              element={<Auth issignup={issignup} setIssignup={setIssignup} />}
+            />
+          ) : (
+            <>
+              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/myBlogs" element={<UserBlogs />} />
+              <Route path="/myBlogs/:id" element={<BlogDetail />} />
+              <Route path="/blogs/add" element={<AddBlog />} />
+            </>
+          )}
+        </Routes>
+      </main>
+    </>
   );
 }
 
